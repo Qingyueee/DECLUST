@@ -4,7 +4,7 @@ A cluster-based cell-type deconvolution of spatial transcriptomic data (DECLUST)
 ## Introduction  
 DECLUST is a cluster-based cell-type deconvolution method that identifies spatial clusters of spots by integrating both gene expression profiles and spatial coordinates to preserve the spatial structure of the tissue. Deconvolution is then applied to the aggregated gene expression within each cluster, allowing for improved cell type identification by overcoming the problem of low expression levels in individual spots.  
 
-![workflow](./DECLUST_workflow.png)
+![workflow](./overview.jpg)
 
 ## Installation  
 
