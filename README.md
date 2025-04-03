@@ -97,21 +97,21 @@ a. **Hierarchical Clustering**
    This function clustering spots based on the spatial transcriptome highly variable gene expression profiles.
    
    ```python
-      hierarchical_df = declust.hierarchical.clustering(st_highly_variable_genes, coords)
+      hierarchical_df = declust.hierarchical.clustering(st_highly_variable_genes_df, coords_df)
    ```
 
 b. **DBSCAN Clustering**  
    This function refines the initial clustering by applying DBSCAN to the results of the hierarchical clustering. It also selects the initial seeds for the SRG. You can choose to visualize the DBSCAN clustering results.
    
    ```python
-      dbscan_centers_df = declust.dbscan.clustering(hierarchical_df, coords, visualize=True)
+      dbscan_centers_df = declust.dbscan.clustering(hierarchical_df, coords_df, visualize=True)
    ```
 
 c. **Seeded Region Growing (SRG)**  
    Finally, the SRG function further refines the clusters.
    
    ```python
-      srg_df = declust.srg.clustering(dbscan_centers_df, coords, st_highly_variable_genes)
+      srg_df = declust.srg.clustering(dbscan_centers_df, coords_df, st_highly_variable_genes_df)
    ```
 
 Each step builds on the previous one:
@@ -152,7 +152,7 @@ Use the `declust.visualize.declust_results_visualize` function to generate a dec
 
 ```python
    declust.visualize.declust_results_visualize(st_anndata, sc_marker_anndata, decon_result_df,
-                                               coords, gene_idx, cell_type_idx)
+                                               coords_df, gene_idx, cell_type_idx)
 ```
 
 ## Input Files  
