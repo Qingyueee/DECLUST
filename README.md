@@ -78,7 +78,7 @@ The `declust.preprocessing.extract_labels_from_scdata` function extracts cell ty
 
 ```python
    declust.preprocessing.extract_labels_from_scdata(anndata, celltype_col='celltype_major',
-                                                   sample_col='Patient')
+                                                    sample_col='Patient')
 ```
 
 #### 2. Generating Marker Genes
@@ -128,7 +128,7 @@ The final stage of the DECLUST pipeline is deconvolution. Here, we use a simple 
 
 ```python
    declust.deconvolution.generate_pseudo_bulk(st_anndata, label_df, save_csv=True, 
-                                             output_path="results/pseudo_bulk.csv")
+                                              output_path="results/pseudo_bulk.csv")
 
    declust.deconvolution.ols(st_anndata, sc_marker_anndata, label_df)
 ```
@@ -152,7 +152,7 @@ Use the `declust.visualize.declust_results_visualize` function to generate a dec
 
 ```python
    declust.visualize.declust_results_visualize(st_anndata, sc_marker_anndata, decon_result_df,
-                                             coords, gene_idx, cell_type_idx)
+                                               coords, gene_idx, cell_type_idx)
 ```
 
 ## Input Files  
