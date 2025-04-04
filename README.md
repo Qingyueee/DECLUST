@@ -1,12 +1,9 @@
-<div style="display: flex; align-items: center;">
+#  <img src="./logo.png" align="left" height="150" /></a>
 
-  <img src="./logo.png" alt="logo" width="190" style="margin-right: 20px;"/>
+<strong>DECLUST</strong> is a Python package developed to identify spatially coherent clusters of spots by integrating gene expression profiles with spatial coordinates in spatial transcriptomics data. It also enables accurate estimation of cell-type compositions within each cluster. The recommended starting point for using DECLUST is to follow the provided <a href="https://github.com/Qingyueee/DECLUST/blob/main/tutorial.ipynb" target="_blank">tutorial</a>。
 
-  <div>
-    DECLUST is a Python package developed to identify spatially coherent clusters of spots by integrating gene expression profiles with spatial coordinates in spatial transcriptomics data. It also enables accurate estimation of cell-type compositions within each cluster. The recommended starting point for using DECLUST is to follow the provided <a href="https://github.com/Qingyueee/DECLUST/blob/main/tutorial.ipynb" target="_blank">tutorial</a>.
-  </div>
 
-</div>
+<br> 
 
 ## 🌟 Features
 
