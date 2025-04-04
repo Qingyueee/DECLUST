@@ -48,6 +48,39 @@ DECLUST requires AnnData files for processing and analysis.
    Download the `data.zip` file from [Google Drive](https://drive.google.com/uc?export=download&id=1LrSQYf1_IqQzxx7GeJrbBsEyuLLHHERC).
 
 
+## ⚙️ DECLUST Pipeline
+
+The pipeline consists of 5 modular stages. You can flexibly run any stage. Before start running the pipeline, place your input files(.h5ad) in the data/ folder first.
+
+- Marker Gene Selection
+  
+```bash
+   python main.py --stage marker
+```
+
+- Clustering of ST Spots
+
+```bash
+   python main.py --stage cluster --visualize_dbscan True
+```
+
+- Pseudo-Bulk Generation
+  
+```bash
+   python main.py --stage pseudo_bulk
+```
+- Deconvolution
+  
+```bash
+   python main.py --stage deconv
+```
+
+- Visualization
+  
+```bash
+   python main.py --stage visualize
+```
+
 ## 🔜 How to run DECLUST
 
 The main workflow consists of:
