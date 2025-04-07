@@ -142,7 +142,29 @@ def update_label_dict(SSL, label_dict):
         print("Warning: 'index' or 'neighbour_coordinates' is empty.")
     return SSL
 
-def visualize_results(label_df, sorted_labels):
+# def visualize_results(label_df, sorted_labels):
+#     fig, ax = plt.subplots(figsize=(8, 6))
+
+#     cmap = cm.get_cmap('tab20', len(sorted_labels))
+
+#     for i, label in enumerate(sorted_labels):
+#         label_data = label_df[label_df['label'] == label]
+#         color = cmap(i)
+#         ax.scatter(label_data['x'], label_data['y'], color=color, s=8, label=f'Segment {label}')
+    
+#     ax.set_title('SRG results')
+#     ax.set_xticks([])
+#     ax.set_yticks([])
+    
+#     ax.legend(loc='upper left', bbox_to_anchor=(1.05, 1), fontsize='small', markerscale=2)
+    
+#     for spine in ax.spines.values():
+#         spine.set_linewidth(0)
+    
+#     plt.tight_layout()
+#     plt.show()
+
+def visualize_results(label_df, sorted_labels, show_plot=False, save_path=None):
     fig, ax = plt.subplots(figsize=(8, 6))
 
     cmap = cm.get_cmap('tab20', len(sorted_labels))
@@ -155,16 +177,27 @@ def visualize_results(label_df, sorted_labels):
     ax.set_title('SRG results')
     ax.set_xticks([])
     ax.set_yticks([])
-    
     ax.legend(loc='upper left', bbox_to_anchor=(1.05, 1), fontsize='small', markerscale=2)
-    
+
     for spine in ax.spines.values():
         spine.set_linewidth(0)
     
     plt.tight_layout()
-    plt.show()
 
-def clustering(dbscan_centers_df, coords, st_highly_variable_genes_df):
+    if show_plot:
+        plt.show()
+    elif save_path is not None:
+        import os
+        os.makedirs(save_path, exist_ok=True)
+        file_path = os.path.join(save_path, "srg_result.png")
+        plt.savefig(file_path, dpi=300)
+        print(f"SRG result plot saved to: {file_path}")
+        plt.close()
+    else:
+        plt.close()
+
+
+def clustering(dbscan_centers_df, coords, st_highly_variable_genes_df, show_plot=False, save_path=None):
 
     """
     Performs Seeded Region Growing clustering to refine initial cluster assignments.
@@ -244,5 +277,7 @@ def clustering(dbscan_centers_df, coords, st_highly_variable_genes_df):
     unique_labels = label_df['label'].unique()
     sorted_labels = sorted(unique_labels)
 
-    visualize_results(label_df, sorted_labels)
+    # visualize_results(label_df, sorted_labels)
+    visualize_results(label_df, sorted_labels, show_plot=show_plot, save_path=save_path)
+
     return label_df

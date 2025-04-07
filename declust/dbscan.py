@@ -1,10 +1,11 @@
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
 from sklearn.cluster import DBSCAN
 
-def plot_dbscan_clusters(cluster_arr, dbscan_labels, hierarchical_label):
+def plot_dbscan_clusters(cluster_arr, dbscan_labels, hierarchical_label, save_path=None):
     outlier_indices = np.where(dbscan_labels == -1)[0]
     non_outlier_indices = np.where(dbscan_labels != -1)[0]
     x_outliers, y_outliers = cluster_arr[outlier_indices, 0], cluster_arr[outlier_indices, 1]
@@ -25,7 +26,12 @@ def plot_dbscan_clusters(cluster_arr, dbscan_labels, hierarchical_label):
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize='small')
     plt.title(f'DBSCAN Subclusters in Hierarchical Cluster {hierarchical_label}')
     plt.tight_layout()
-    plt.show()
+
+    if save_path:
+        plt.savefig(save_path, dpi=100)
+        plt.close()
+    else:
+        plt.show()
 
 def find_cluster_centers(cluster_arr, dbscan_labels, hierarchical_label, min_cluster_size_ratio=0.05, sample_ratio=0.5):
     results = []
@@ -65,7 +71,7 @@ def find_cluster_centers(cluster_arr, dbscan_labels, hierarchical_label, min_clu
     
     return results
 
-def clustering(hierarchical_results, coords, visualize=False):
+def clustering(hierarchical_results, coords, visualize=False, plot_save_dir=None):
 
     """
     Performs DBSCAN clustering on the results from hierarchical clustering and returns 
@@ -104,9 +110,20 @@ def clustering(hierarchical_results, coords, visualize=False):
 
         dbscan_labels = DBSCAN(eps=eps, min_samples=min_samples).fit_predict(cluster_arr)
 
-        if visualize:
-            plot_dbscan_clusters(cluster_arr, dbscan_labels, cluster_label)
+        # if visualize:
+        #     plot_dbscan_clusters(cluster_arr, dbscan_labels, cluster_label)
         
+        # centers = find_cluster_centers(cluster_arr, dbscan_labels, cluster_label)
+        # results.extend(centers)
+
+        if visualize or plot_save_dir:
+            save_path_fig = None
+            if plot_save_dir:
+                os.makedirs(plot_save_dir, exist_ok=True)
+                save_path_fig = os.path.join(plot_save_dir, f'dbscan_cluster_{cluster_label}.png')
+            plot_dbscan_clusters(cluster_arr, dbscan_labels, cluster_label, save_path=save_path_fig)
+            print(f"Cluster plot saved to: {save_path_fig}")
+
         centers = find_cluster_centers(cluster_arr, dbscan_labels, cluster_label)
         results.extend(centers)
 
@@ -120,6 +137,7 @@ def clustering(hierarchical_results, coords, visualize=False):
         print("Warning: Some DBSCAN centers could not be matched to coords!")
 
     dbscan_centers_df.index = matched_indexes
+    
     return dbscan_centers_df
 
 
