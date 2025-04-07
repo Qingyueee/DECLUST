@@ -5,34 +5,43 @@ import pandas as pd
 import declust as dc
 
 # -----------------------------------------
-# Utility: create folders
-# -----------------------------------------
-os.makedirs('data', exist_ok=True)
-os.makedirs('results', exist_ok=True)
-
-# -----------------------------------------
 # Argument parser
 # -----------------------------------------
 parser = argparse.ArgumentParser()
 parser.add_argument('--module', type=str, choices=['marker', 'cluster', 'pseudo_bulk', 'deconv', 'visualize'], required=True)
 parser.add_argument('--celltype_col', type=str, help='Column name in scRNA-seq data for cell type')
 parser.add_argument('--sample_col', type=str, help='Column name in scRNA-seq data for sample')
-
+parser.add_argument('--data_dir', type=str, default='data', help='Directory to store input data')
+parser.add_argument('--results_dir', type=str, default='results', help='Directory to store output results')
+parser.add_argument('--sc_file', type=str, default='sc_adata.h5ad', help='Filename of scRNA-seq AnnData object')
+parser.add_argument('--st_file', type=str, default='st_adata.h5ad', help='Filename of ST AnnData object')
 parser.add_argument('--num_clusters', type=int, default=None,
                     help='Manually specify number of clusters. If not set, auto-selected by elbow method.')
 parser.add_argument('--visualize_selection', action='store_true', help='Show elbow and silhouette plots for cluster selection')
 parser.add_argument('--visualize_hierarchical', action='store_true', help='Show final clustering result')
 parser.add_argument('--visualize_dbscan', action='store_true', help='Show DBSCAN clustering result')
 parser.add_argument('--visualize_srg', action='store_true', help='Show final SRG result plot')
-
 args = parser.parse_args()
+
+# -----------------------------------------
+# Create folders
+# -----------------------------------------
+os.makedirs(args.data_dir, exist_ok=True)
+os.makedirs(args.results_dir, exist_ok=True)
+
+print(f"📂 Data directory: {args.data_dir}")
+print(f"📁 Results directory: {args.results_dir}")
+print(f"📥 scRNA-seq file: {args.sc_file}")
+print(f"📥 Spatial transcriptomics file: {args.st_file}")
 
 # -----------------------------------------
 # Load data
 # -----------------------------------------
 print("\U0001F4E5 Loading scRNA-seq and ST data...")
-sc_adata = sc.read_h5ad('data/sc_adata.h5ad')
-st_adata = sc.read_h5ad('data/st_adata.h5ad')
+sc_adata_path = os.path.join(args.data_dir, args.sc_file)
+st_adata_path = os.path.join(args.data_dir, args.st_file)
+sc_adata = sc.read_h5ad(sc_adata_path)
+st_adata = sc.read_h5ad(st_adata_path)
 st_adata.var_names_make_unique()
 sc_adata.var_names_make_unique()
 coords_df = st_adata.obs.rename(columns={'array_row': 'x', 'array_col': 'y'})[['x', 'y']]
@@ -53,7 +62,10 @@ def prepare_marker_genes():
         print("📌 Available options in scRNA-seq data:", sc_adata.obs.columns.tolist())
         exit(1)
 
-    if not os.path.exists('data/sc_adata_overlapped.csv') or not os.path.exists('data/sc_labels.csv'):
+    overlapped_path = os.path.join(args.data_dir, 'sc_adata_overlapped.csv')
+    labels_path = os.path.join(args.data_dir, 'sc_labels.csv')
+
+    if not os.path.exists(overlapped_path) or not os.path.exists(labels_path):
         print("⚙️ Generating marker gene input files...")
         common_genes = set(dc.preprocessing.select_highly_variable_genes(st_adata, n_top_genes=5000)).intersection(sc_adata.var_names)
         sc_adata_overlapped = sc_adata[:, list(common_genes)].copy()
@@ -62,87 +74,88 @@ def prepare_marker_genes():
             celltype_col=args.celltype_col,
             sample_col=args.sample_col
         )
-        sc_adata_overlapped.to_df().to_csv('data/sc_adata_overlapped.csv')
-        sc_labels.to_csv('data/sc_labels.csv')
+        sc_adata_overlapped.to_df().to_csv(overlapped_path)
+        sc_labels.to_csv(labels_path)
 
     print("🔍 Selecting marker genes...")
     return dc.marker_selection.generate_marker_genes(
-        'data/sc_adata_overlapped.csv',
-        'data/sc_labels.csv',
-        'results/marker_genes.csv'
+        overlapped_path,
+        labels_path,
+        os.path.join(args.results_dir, 'marker_genes.csv')
     )
-
 
 # -----------------------------------------
 # Step 2: Clustering
 # -----------------------------------------
 def run_clustering():
-    if not os.path.exists('results/marker_genes.csv'):
+    marker_path = os.path.join(args.results_dir, 'marker_genes.csv')
+    if not os.path.exists(marker_path):
         print("⚠️ Marker gene file not exit. Auto-running marker step...")
         prepare_marker_genes()
     print("📦 Running clustering...")
-    sc_marker_gene_df = pd.read_csv('results/marker_genes.csv', index_col='Gene')
+    sc_marker_gene_df = pd.read_csv(marker_path, index_col='Gene')
     sc_adata_marker = sc_adata[:, sc_adata.var_names.isin(sc_marker_gene_df.index)].copy()
     hier_df = dc.hierarchical.clustering(
         st_top_500_genes_df,
         coords_df,
         num_clusters=args.num_clusters,
         show_plot=args.visualize_hierarchical,
-        save_path='results/hierarchical' if not args.visualize_hierarchical else None,
+        save_path=None if args.visualize_hierarchical else os.path.join(args.results_dir, 'hierarchical'),
         show_selection_plot=args.visualize_selection
     )
     dbscan_df = dc.dbscan.clustering(
         hier_df,
         coords_df,
         visualize=args.visualize_dbscan,
-        plot_save_dir=None if args.visualize_dbscan else 'results/dbscan' 
+        plot_save_dir=None if args.visualize_dbscan else os.path.join(args.results_dir, 'dbscan')
     )
-
-    # srg_df = dc.srg.clustering(dbscan_df, coords_df, st_top_500_genes_df)
     srg_df = dc.srg.clustering(
         dbscan_df,
         coords_df,
         st_top_500_genes_df,
         show_plot=args.visualize_srg,
-        save_path=None if args.visualize_srg else 'results/srg'
+        save_path=None if args.visualize_srg else os.path.join(args.results_dir, 'srg')
     )
-    srg_df.to_csv('results/srg_df.csv')
+    srg_df.to_csv(os.path.join(args.results_dir, 'srg_df.csv'))
     return srg_df, sc_adata_marker
 
 # -----------------------------------------
 # Step 3: Pseudo bulk
 # -----------------------------------------
 def generate_pseudo_bulk():
-    if not os.path.exists('results/srg_df.csv'):
+    srg_path = os.path.join(args.results_dir, 'srg_df.csv')
+    if not os.path.exists(srg_path):
         print("⚠️ Clustering result not exit. Auto-running clustering step...")
         run_clustering()
-    srg_df = pd.read_csv('results/srg_df.csv', index_col=0)
+    srg_df = pd.read_csv(srg_path, index_col=0)
     print("🧪 Generating pseudo bulk expression...")
-    dc.deconvolution.generate_pseudo_bulk(st_adata, srg_df, save_csv=True, output_path="results/pseudo_bulk.csv")
+    dc.deconvolution.generate_pseudo_bulk(st_adata, srg_df, save_csv=True, output_path=os.path.join(args.results_dir, "pseudo_bulk.csv"))
 
 # -----------------------------------------
 # Step 4: Deconvolution
 # -----------------------------------------
 def run_deconvolution():
-    if not os.path.exists('results/marker_genes.csv'):
+    marker_path = os.path.join(args.results_dir, 'marker_genes.csv')
+    srg_path = os.path.join(args.results_dir, 'srg_df.csv')
+    if not os.path.exists(marker_path):
         print("⚠️ Marker gene file not exit. Auto-running marker step...")
         prepare_marker_genes()
-    if not os.path.exists('results/srg_df.csv'):
+    if not os.path.exists(srg_path):
         print("⚠️ Clustering result not exit. Auto-running clustering step...")
         run_clustering()
-    srg_df = pd.read_csv('results/srg_df.csv', index_col=0)
-    sc_marker_gene_df = pd.read_csv('results/marker_genes.csv', index_col='Gene')
+    srg_df = pd.read_csv(srg_path, index_col=0)
+    sc_marker_gene_df = pd.read_csv(marker_path, index_col='Gene')
     sc_adata_marker = sc_adata[:, sc_adata.var_names.isin(sc_marker_gene_df.index)].copy()
     print("🧩 Performing deconvolution with DECLUST...")
     DECLUST_df = dc.deconvolution.ols(st_adata, sc_adata_marker, srg_df)
-    DECLUST_df.to_csv('results/DECLUST_result.csv')
+    DECLUST_df.to_csv(os.path.join(args.results_dir, 'DECLUST_result.csv'))
 
 # -----------------------------------------
 # Step 5: Visualization
 # -----------------------------------------
 def visualize():
-    marker_path = 'results/marker_genes.csv'
-    declust_path = 'results/DECLUST_result.csv'
+    marker_path = os.path.join(args.results_dir, 'marker_genes.csv')
+    declust_path = os.path.join(args.results_dir, 'DECLUST_result.csv')
 
     if not os.path.exists(marker_path) or not os.path.exists(declust_path):
         print("❌ Required files for visualization not found. Please run deconv step first.")
@@ -219,4 +232,3 @@ elif args.module == 'deconv':
 
 elif args.module == 'visualize':
     visualize()
-    # print("✅ Stage completed: visualize")
