@@ -39,8 +39,8 @@ DECLUST requires AnnData files for processing and analysis.
 
 |             | Description                                                                                 |
 |----------------------|---------------------------------------------------------------------------------------------|
-| **sc_adata**    | Single-cell RNA sequencing (scRNA-seq) data, including gene expression profiles and cell type annotations.|
-| **st_adata**    | Spatial transcriptomics (ST) data, including spatial gene expression profiles and spot coordinates. |
+| **sc_adata.h5ad**    | Single-cell RNA sequencing (scRNA-seq) data, including gene expression profiles and cell type annotations.|
+| **st_adata.h5ad**    | Spatial transcriptomics (ST) data, including spatial gene expression profiles and spot coordinates. |
 
 - Example Data Download  
 
