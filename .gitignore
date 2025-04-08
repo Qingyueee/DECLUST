@@ -1,0 +1,6 @@
+__pycache__/
+**/__pycache__/
+data/
+results/
+simulation_results/
+.DS_Store
