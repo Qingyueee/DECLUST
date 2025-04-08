@@ -21,6 +21,12 @@ parser.add_argument('--visualize_selection', action='store_true', help='Show elb
 parser.add_argument('--visualize_hierarchical', action='store_true', help='Show final clustering result')
 parser.add_argument('--visualize_dbscan', action='store_true', help='Show DBSCAN clustering result')
 parser.add_argument('--visualize_srg', action='store_true', help='Show final SRG result plot')
+parser.add_argument('--custom_marker_genes', type=str, default=None,
+                    help='Optional: .csv file path or gene list, e.g., "CD3D,MS4A1,LYZ"')
+parser.add_argument('--custom_marker_celltype', type=str, default=None,
+                    help='Cell type annotation for marker gene list')
+
+
 args = parser.parse_args()
 
 # -----------------------------------------
@@ -31,8 +37,8 @@ os.makedirs(args.results_dir, exist_ok=True)
 
 print(f"📂 Data directory: {args.data_dir}")
 print(f"📁 Results directory: {args.results_dir}")
-print(f"📥 scRNA-seq file: {args.sc_file}")
-print(f"📥 Spatial transcriptomics file: {args.st_file}")
+print(f"📜 scRNA-seq file: {args.sc_file}")
+print(f"📜 Spatial transcriptomics file: {args.st_file}")
 
 # -----------------------------------------
 # Load data
@@ -88,13 +94,10 @@ def prepare_marker_genes():
 # Step 2: Clustering
 # -----------------------------------------
 def run_clustering():
-    marker_path = os.path.join(args.results_dir, 'marker_genes.csv')
-    if not os.path.exists(marker_path):
-        print("⚠️ Marker gene file not exit. Auto-running marker step...")
-        prepare_marker_genes()
-    print("📦 Running clustering...")
-    sc_marker_gene_df = pd.read_csv(marker_path, index_col='Gene')
+    sc_marker_gene_df = load_marker_genes()
     sc_adata_marker = sc_adata[:, sc_adata.var_names.isin(sc_marker_gene_df.index)].copy()
+
+    print("📦 Running clustering...")
     hier_df = dc.hierarchical.clustering(
         st_top_500_genes_df,
         coords_df,
@@ -119,6 +122,7 @@ def run_clustering():
     srg_df.to_csv(os.path.join(args.results_dir, 'srg_df.csv'))
     return srg_df, sc_adata_marker
 
+
 # -----------------------------------------
 # Step 3: Pseudo bulk
 # -----------------------------------------
@@ -134,34 +138,34 @@ def generate_pseudo_bulk():
 # -----------------------------------------
 # Step 4: Deconvolution
 # -----------------------------------------
+
 def run_deconvolution():
-    marker_path = os.path.join(args.results_dir, 'marker_genes.csv')
     srg_path = os.path.join(args.results_dir, 'srg_df.csv')
-    if not os.path.exists(marker_path):
-        print("⚠️ Marker gene file not exit. Auto-running marker step...")
-        prepare_marker_genes()
     if not os.path.exists(srg_path):
-        print("⚠️ Clustering result not exit. Auto-running clustering step...")
+        print("⚠️ Clustering result not found. Auto-running clustering step...")
         run_clustering()
     srg_df = pd.read_csv(srg_path, index_col=0)
-    sc_marker_gene_df = pd.read_csv(marker_path, index_col='Gene')
+
+    sc_marker_gene_df = load_marker_genes()
     sc_adata_marker = sc_adata[:, sc_adata.var_names.isin(sc_marker_gene_df.index)].copy()
+
     print("🧩 Performing deconvolution with DECLUST...")
     DECLUST_df = dc.deconvolution.ols(st_adata, sc_adata_marker, srg_df)
     DECLUST_df.to_csv(os.path.join(args.results_dir, 'DECLUST_result.csv'))
 
-# -----------------------------------------
-# Step 5: Visualization
-# -----------------------------------------
-def visualize():
-    marker_path = os.path.join(args.results_dir, 'marker_genes.csv')
-    declust_path = os.path.join(args.results_dir, 'DECLUST_result.csv')
 
-    if not os.path.exists(marker_path) or not os.path.exists(declust_path):
-        print("❌ Required files for visualization not found. Please run deconv step first.")
+# # -----------------------------------------
+# # Step 5: Visualization
+# # -----------------------------------------
+
+def visualize():
+    declust_path = os.path.join(args.results_dir, 'DECLUST_result.csv')
+    if not os.path.exists(declust_path):
+        print("❌ Required file DECLUST_result.csv not found. Please run deconv step first.")
         return
 
-    sc_marker_gene_df = pd.read_csv(marker_path, index_col='Gene')
+    is_custom_marker = args.custom_marker_genes is not None
+    sc_marker_gene_df = load_marker_genes()
     DECLUST_df = pd.read_csv(declust_path, index_col=0)
 
     print("\n📊 Visualization Options:")
@@ -173,7 +177,7 @@ def visualize():
             break
 
     if choice == '1':
-        if 'tstat' in sc_marker_gene_df.columns:
+        if not is_custom_marker and 'tstat' in sc_marker_gene_df.columns:
             sorted_genes = sc_marker_gene_df.sort_values('tstat', ascending=False)
             print("\n🔝 Top 5 marker genes (by t-statistic):", sorted_genes.index[:5].tolist())
             see_all = input("See all marker genes? (yes/no): ").strip().lower()
@@ -194,22 +198,122 @@ def visualize():
         print("\nMethods: \n1. Single gene\n2. Sum of markers\n3. Mean of markers")
         method = input("Choose method (1/2/3): ").strip()
         if method == '1':
-            markers = sc_marker_gene_df[sc_marker_gene_df['maxgroup'] == cell_type]
-            if 'tstat' in markers.columns:
-                markers = markers.sort_values('tstat', ascending=False)
-            print(f"\nTop 5 markers for {cell_type}: {markers.index[:5].tolist()}")
-            see_all = input("See all markers? (yes/no): ").strip().lower()
-            if see_all in ['yes', 'y', 'all']:
-                print(markers.index.tolist())
-            while True:
-                gene_name = input("Enter gene name to visualize: ").strip()
-                if gene_name in markers.index:
-                    break
-            dc.visualize.declust_results_visualize(st_adata, sc_marker_gene_df, DECLUST_df, coords_df, gene_name=gene_name, cell_type=cell_type)
+            if is_custom_marker:
+                if 'maxgroup' in sc_marker_gene_df.columns:
+                    markers = sc_marker_gene_df[sc_marker_gene_df['maxgroup'] == cell_type]
+                    if markers.empty:
+                        print(f"⚠️ No marker genes found for cell type '{cell_type}' in your custom file.")
+                        return
+                    print(f"\nAvailable markers for {cell_type}: {markers.index[:5].tolist()}")
+                    see_all = input("See all markers? (yes/no): ").strip().lower()
+                    if see_all in ['yes', 'y', 'all']:
+                        print(markers.index.tolist())
+                    while True:
+                        gene_name = input("Enter gene name to visualize: ").strip()
+                        if gene_name in markers.index:
+                            break
+                else:
+                    print("⚠️ You are using a gene list without cell type annotations.")
+                    print("   Please manually enter a gene and corresponding cell type for visualization.")
+                    available_genes = sc_marker_gene_df.index.tolist()
+                    print(f"📋 Available marker genes: {available_genes}")
+                    while True:
+                        gene_name = input("Enter gene name to visualize: ").strip()
+                        if gene_name in available_genes:
+                            break
+            else:
+                markers = sc_marker_gene_df[sc_marker_gene_df['maxgroup'] == cell_type]
+                if 'tstat' in markers.columns:
+                    markers = markers.sort_values('tstat', ascending=False)
+                print(f"\nTop 5 markers for {cell_type}: {markers.index[:5].tolist()}")
+                see_all = input("See all markers? (yes/no): ").strip().lower()
+                if see_all in ['yes', 'y', 'all']:
+                    print(markers.index.tolist())
+                while True:
+                    gene_name = input("Enter gene name to visualize: ").strip()
+                    if gene_name in markers.index:
+                        break
+
+            dc.visualize.declust_results_visualize(
+                st_adata, sc_marker_gene_df, DECLUST_df, coords_df,
+                gene_name=gene_name, cell_type=cell_type
+            )
+
         elif method == '2':
-            dc.visualize.declust_results_visualize(st_adata, sc_marker_gene_df, DECLUST_df, coords_df, cell_type=cell_type, agg_method='sum')
+            dc.visualize.declust_results_visualize(
+                st_adata, sc_marker_gene_df, DECLUST_df, coords_df,
+                cell_type=cell_type, agg_method='sum'
+            )
+
         elif method == '3':
-            dc.visualize.declust_results_visualize(st_adata, sc_marker_gene_df, DECLUST_df, coords_df, cell_type=cell_type, agg_method='mean')
+            dc.visualize.declust_results_visualize(
+                st_adata, sc_marker_gene_df, DECLUST_df, coords_df,
+                cell_type=cell_type, agg_method='mean'
+            )
+
+
+# -----------------------------------------
+# Custom marker genes
+# -----------------------------------------
+def load_marker_genes():
+    if args.custom_marker_genes:
+        # ----------------------------
+        # Case 1: .csv file
+        # ----------------------------
+        if os.path.exists(args.custom_marker_genes):
+            print(f"📖 Loading custom marker genes from file: {args.custom_marker_genes}")
+            df = pd.read_csv(args.custom_marker_genes)
+
+            if 'Gene' not in df.columns or 'maxgroup' not in df.columns:
+                print("❌ Error: Custom marker gene CSV must contain 'Gene' and 'maxgroup' columns.")
+                exit(1)
+
+            df = df.set_index('Gene')
+            return df
+
+        # ----------------------------
+        # Case 2: Gene list
+        # ----------------------------
+        elif ',' in args.custom_marker_genes:
+            if not args.custom_marker_celltype:
+                print("❌ Error: When using comma-separated gene list, you must also provide --custom_marker_celltype.")
+                exit(1)
+
+            marker_genes = [gene.strip() for gene in args.custom_marker_genes.split(',')]
+            cell_types = [ct.strip() for ct in args.custom_marker_celltype.split(',')]
+
+            if len(marker_genes) != len(cell_types):
+                print("❌ Error: The number of genes and cell types must match.")
+                print(f"🧬 Genes ({len(marker_genes)}): {marker_genes}")
+                print(f"🧫 Cell types ({len(cell_types)}): {cell_types}")
+                exit(1)
+
+            print("📖 Using custom gene list with cell types:")
+            for g, c in zip(marker_genes, cell_types):
+                print(f"   - {g} → {c}")
+
+            df = pd.DataFrame({
+                'Gene': marker_genes,
+                'maxgroup': cell_types
+            }).set_index('Gene')
+            return df
+
+        # ----------------------------
+        # Invalid input
+        # ----------------------------
+        else:
+            print(f"❌ Invalid custom_marker_genes input: {args.custom_marker_genes}")
+            exit(1)
+
+    else:
+        marker_path = os.path.join(args.results_dir, 'marker_genes.csv')
+        if not os.path.exists(marker_path):
+            print("⚙️ No custom markers provided. Auto-running marker selection step...")
+            prepare_marker_genes()
+
+        return pd.read_csv(marker_path, index_col='Gene')
+
+
 
 # -----------------------------------------
 # Stage dispatching
