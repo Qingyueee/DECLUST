@@ -159,8 +159,8 @@ Users can provide their own marker gene list in one of two formats:
 
 ```bash
 # 1. Download DECLUST
-   wget https://github.com/Qingyueee/DECLUST/archive/refs/tags/v0.1.0.tar.gz
-   tar -xvf v0.1.0.tar.gz
+   wget https://github.com/Qingyueee/DECLUST/archive/refs/tags/0.1.0.tar.gz
+   tar -xvf 0.1.0.tar.gz
    cd DECLUST-0.1.0
 
 # 2. Configuring environment and install dependencies
