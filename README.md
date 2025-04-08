@@ -17,7 +17,7 @@
 
 ## ⏬ Installation
 
-We recommend using a separate conda environment in a Linux environment:
+We recommend using a separate conda environment:
 
 - Create a conda environment and install the DECLUST package
 
@@ -125,7 +125,7 @@ Performs OLS-based deconvolution and outputs:
 
 - `DECLUST_result.csv` in `results/`
 
-You can run each step individually or run only the deconvolution module, provided that earlier steps have been completed.
+You can run each step individually or execute the entire pipeline by running the deconvolution script.
 
 To export pseudo-bulk profiles for external methods:
 
