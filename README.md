@@ -81,8 +81,8 @@ Type `python declust.py --help` in the terminal to see a list of available comma
 1. Download DECLUST:
 
 ```bash
-   wget https://github.com/Qingyueee/DECLUST/archive/refs/tags/v0.1.0.tar.gz
-   tar -xvf v0.1.0.tar.gz
+   wget https://github.com/Qingyueee/DECLUST/archive/refs/tags/0.1.0.tar.gz
+   tar -xvf 0.1.0.tar.gz
 ```
 
 2. Unpack data:
@@ -95,8 +95,8 @@ Type `python declust.py --help` in the terminal to see a list of available comma
 
 ```bash
    python declust.py --module marker \
-   --celltype_col cell_type \
-   --sample_col sample_id
+   --celltype_col \
+   --sample_col
 ```
 
 Outputs:
@@ -135,23 +135,20 @@ To export pseudo-bulk profiles for external methods:
 
 - Generates `pseudo_bulk.csv` in the `results/` folder.
 
-> **Custom Marker Genes**  
+#### 💡 Custom Marker Genes
 
-> Users can provide their own marker gene list in one of two formats:
+Users can provide their own marker gene list in one of two formats:
 
-> 1. **CSV file** containing two columns:
->   - `Gene`: gene names  
->   - `maxgroup`: corresponding cell type annotations
-
->   Example:
+- **CSV file** containing two columns:
+   - `Gene`: gene names  
+   - `maxgroup`: corresponding cell type annotations
 
 ```bash
-   --custom_marker_genes marker_genes.csv
+   --custom_marker_genes file_path
 ```
 
-> 2. **Comma-separated gene list**, along with a corresponding **comma-separated list of cell types**:
+- **Comma-separated gene list**, along with a corresponding **comma-separated list of cell types**:
 
->   Example:
 ```bash
    --custom_marker_genes "DCN, LUM, C1S, AGR2, PPDPF, ..."
    --custom_marker_celltype "CAFs, CAFs, CAFs, Cancer Epithelial, Cancer Epithelial, ..."
