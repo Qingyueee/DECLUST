@@ -8,26 +8,31 @@ import declust as dc
 # Argument parser
 # -----------------------------------------
 parser = argparse.ArgumentParser()
-parser.add_argument('--module', type=str, choices=['marker', 'cluster', 'pseudo_bulk', 'deconv', 'visualize'], required=True)
-parser.add_argument('--celltype_col', type=str, help='Column name in scRNA-seq data for cell type')
-parser.add_argument('--sample_col', type=str, help='Column name in scRNA-seq data for sample')
-parser.add_argument('--data_dir', type=str, default='data', help='Directory to store input data')
-parser.add_argument('--results_dir', type=str, default='results', help='Directory to store output results')
-parser.add_argument('--sc_file', type=str, default='sc_adata.h5ad', help='Filename of scRNA-seq AnnData object')
-parser.add_argument('--st_file', type=str, default='st_adata.h5ad', help='Filename of ST AnnData object')
+parser.add_argument('--module', type=str, choices=['marker', 'cluster', 'pseudo_bulk', 'deconv', 'visualize', 'help'], required=True)
+parser.add_argument('--celltype_col', type=str, help='Column name in the scRNA-seq AnnData object specifying cell types')
+parser.add_argument('--sample_col', type=str, help='Column name in the scRNA-seq AnnData object specifying sample IDs')
+parser.add_argument('--data_dir', type=str, default='data', help='Directory where input data files are stored')
+parser.add_argument('--results_dir', type=str, default='results', help='Directory where output results will be saved')
+parser.add_argument('--sc_file', type=str, default='sc_adata.h5ad', help='Filename of the scRNA-seq AnnData object (within data_dir)')
+parser.add_argument('--st_file', type=str, default='st_adata.h5ad', help='Filename of the spatial transcriptomics AnnData object (within data_dir)')
 parser.add_argument('--num_clusters', type=int, default=None,
-                    help='Manually specify number of clusters. If not set, auto-selected by elbow method.')
-parser.add_argument('--visualize_selection', action='store_true', help='Show elbow and silhouette plots for cluster selection')
-parser.add_argument('--visualize_hierarchical', action='store_true', help='Show final clustering result')
-parser.add_argument('--visualize_dbscan', action='store_true', help='Show DBSCAN clustering result')
-parser.add_argument('--visualize_srg', action='store_true', help='Show final SRG result plot')
+                    help='(Optional) Number of hierarchical clusters to use. If not set, it will be auto-selected via the elbow method')
+parser.add_argument('--visualize_selection', action='store_true', help='Show elbow and silhouette plots to assist in selecting the number of hierarchical clusters')
+parser.add_argument('--visualize_hierarchical', action='store_true', help='Show hierarchical clustering result. If not set, the plot will be saved to results_dir/hierarchical')
+parser.add_argument('--visualize_dbscan', action='store_true', help='Show DBSCAN clustering result. If not set, the plot will be saved to results_dir/dbscan')
+parser.add_argument('--visualize_srg', action='store_true', help='Show SRG result. If not set, the plot will be saved to results_dir/srg')
 parser.add_argument('--custom_marker_genes', type=str, default=None,
-                    help='Optional: .csv file path or gene list, e.g., "CD3D,MS4A1,LYZ"')
+                    help='Optional: Provide a path to a CSV file or a comma-separated list of genes, e.g., "CD3D,MS4A1,LYZ"')
 parser.add_argument('--custom_marker_celltype', type=str, default=None,
-                    help='Cell type annotation for marker gene list')
-
-
+                    help='Optional: Cell type annotation(s) corresponding to --custom_marker_genes')
 args = parser.parse_args()
+
+# -----------------------------------------
+# Show help message
+# -----------------------------------------
+if args.module == 'help':
+    parser.print_help()
+    exit()
 
 # -----------------------------------------
 # Create folders
@@ -45,11 +50,13 @@ print(f"📜 Spatial transcriptomics file: {args.st_file}")
 # -----------------------------------------
 print("\U0001F4E5 Loading scRNA-seq and ST data...")
 sc_adata_path = os.path.join(args.data_dir, args.sc_file)
-st_adata_path = os.path.join(args.data_dir, args.st_file)
 sc_adata = sc.read_h5ad(sc_adata_path)
+sc_adata.var_names_make_unique()
+
+st_adata_path = os.path.join(args.data_dir, args.st_file)
 st_adata = sc.read_h5ad(st_adata_path)
 st_adata.var_names_make_unique()
-sc_adata.var_names_make_unique()
+st_adata_raw = st_adata.copy()
 coords_df = st_adata.obs.rename(columns={'array_row': 'x', 'array_col': 'y'})[['x', 'y']]
 
 sc.pp.normalize_total(st_adata, target_sum=1e4)
@@ -68,7 +75,7 @@ def prepare_marker_genes():
         print("📌 Available options in scRNA-seq data:", sc_adata.obs.columns.tolist())
         exit(1)
 
-    overlapped_path = os.path.join(args.data_dir, 'sc_adata_overlapped.csv')
+    overlapped_path = os.path.join(args.data_dir, 'sc_data_overlapped.csv')
     labels_path = os.path.join(args.data_dir, 'sc_labels.csv')
 
     if not os.path.exists(overlapped_path) or not os.path.exists(labels_path):
@@ -133,7 +140,7 @@ def generate_pseudo_bulk():
         run_clustering()
     srg_df = pd.read_csv(srg_path, index_col=0)
     print("🧪 Generating pseudo bulk expression...")
-    dc.deconvolution.generate_pseudo_bulk(st_adata, srg_df, save_csv=True, output_path=os.path.join(args.results_dir, "pseudo_bulk.csv"))
+    dc.deconvolution.generate_pseudo_bulk(st_adata_raw, srg_df, save_csv=True, output_path=os.path.join(args.results_dir, "pseudo_bulk.csv"))
 
 # -----------------------------------------
 # Step 4: Deconvolution
@@ -336,3 +343,5 @@ elif args.module == 'deconv':
 
 elif args.module == 'visualize':
     visualize()
+
+
