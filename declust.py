@@ -75,7 +75,7 @@ def prepare_marker_genes():
         print("📌 Available options in scRNA-seq data:", sc_adata.obs.columns.tolist())
         exit(1)
 
-    overlapped_path = os.path.join(args.data_dir, 'sc_data_overlapped.h5ad')
+    overlapped_path = os.path.join(args.data_dir, 'sc_adata_overlapped.h5ad')
     labels_path = os.path.join(args.data_dir, 'sc_labels.csv')
 
     if not os.path.exists(overlapped_path) or not os.path.exists(labels_path):
