@@ -1,6 +1,6 @@
 #  <img src="./logo.png" align="left" height="150" /></a>
 
-<strong>DECLUST</strong> is a Python package developed to identify spatially coherent clusters of spots by integrating gene expression profiles with spatial coordinates in spatial transcriptomics data. It also enables accurate estimation of cell-type compositions within each cluster. The recommended starting point for using DECLUST is to follow the provided <a href="https://github.com/Qingyueee/DECLUST/blob/main/tutorial.ipynb" target="_blank">**tutorial**</a>.
+<strong>DECLUST</strong> is a Python package developed to identify spatially coherent clusters of spots by integrating gene expression profiles with spatial coordinates in spatial transcriptomics data. It also enables accurate estimation of cell-type compositions within each cluster.
 
 
 <br> 
@@ -17,7 +17,7 @@
 
 ## ⏬ Installation
 
-We recommend using a separate conda environment:
+We recommend using a separate Conda environment. Information about Conda and how to install it can be found in the [anaconda webpage](https://www.anaconda.com/docs/getting-started/miniconda/main).
 
 - Create a conda environment and install the DECLUST package
 
@@ -53,10 +53,12 @@ Each `.h5ad` file includes:
 
 - Download the [Real Data Example](https://drive.google.com/uc?export=download&id=1LrSQYf1_IqQzxx7GeJrbBsEyuLLHHERC). 
    
-- Down load the [Simulation Data Example](https://drive.google.com/uc?export=download&id=1qU0RP6RTXsatiOcndlKzOuwOUttDHZb5).
+- Download the [Simulation Data Example](https://drive.google.com/uc?export=download&id=1qU0RP6RTXsatiOcndlKzOuwOUttDHZb5).
 
 
 ## ⚙️ Usage
+DECLUST can be embedded into python scripts or used independently as a tool.
+A guide of how to use it in python scripts is provided in this <a href="https://github.com/Qingyueee/DECLUST/blob/main/tutorial.ipynb" target="_blank">**tutorial**</a>. In this section, we introduce how to use it as a bioinformatics pipeline.
 
 Run the pipeline using the following command:
 
@@ -155,7 +157,7 @@ Users can provide their own marker gene list in one of two formats:
 ```
 > ⚠️ The provided marker genes and cell type annotations must exist in the single-cell dataset.
 
-## 📬 Quick Example on simulated data
+## 📬 Quick example to run DECLUST on a simulated data
 
 ```bash
 # 1. Download DECLUST
@@ -170,9 +172,10 @@ Users can provide their own marker gene list in one of two formats:
    sh install_dependencies.sh
 
 # 3. Download and unpack simulated data
+   wget "https://drive.usercontent.google.com/download?id=1qU0RP6RTXsatiOcndlKzOuwOUttDHZb5&export=download&authuser=0&confirm=t&uuid=8c67cbf0-d0b4-4222-886f-26c23a5491bb&at=APcmpowVSo0cTH-v4qg25Igd78uI%3A1744177571233" -O simulation_data.zip
    unzip simulation_data.zip
 
-# 4. Run pipeline
+# 4. Run pipeline - it may take about 10 minutes to complete on a personal computer
    python declust.py --module deconv \
       --data_dir simulation_data \
       --results_dir simulation_results \
