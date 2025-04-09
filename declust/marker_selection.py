@@ -3,12 +3,12 @@ import logging
 import contextlib
 import pandas as pd
 import importlib.resources
-
+import rpy2.rinterface_lib.callbacks
 from rpy2.robjects import r, pandas2ri
 from rpy2.rinterface_lib.callbacks import logger as rpy2_logger
 
 pandas2ri.activate()
-
+rpy2.rinterface_lib.callbacks.logger.error = lambda *args, **kwargs: None
 rpy2_logger.setLevel(logging.ERROR)
 
 def generate_marker_genes(sc_overlapped_path, sc_labels_path, output_path):
@@ -18,9 +18,14 @@ def generate_marker_genes(sc_overlapped_path, sc_labels_path, output_path):
     with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
         r(f'''
         library(dplyr)
+        library(zellkonverter)
+        library(SingleCellExperiment)
+
         source('{r_script_str}')
 
-        sc_overlapped <- read.csv('{sc_overlapped_path}', header = TRUE, row.names = 1, check.names = FALSE)
+        sc_overlapped_adata <- readH5AD('{sc_overlapped_path}')
+        sc_overlapped <- as.data.frame(t(as.matrix(assay(sc_overlapped_adata))))
+
         sc_anno <- read.csv('{sc_labels_path}', header = TRUE, sep = ',', row.names = 1, check.names = FALSE)
 
         sc_anno <- sc_anno %>% arrange(cell_type)

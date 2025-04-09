@@ -75,7 +75,7 @@ def prepare_marker_genes():
         print("📌 Available options in scRNA-seq data:", sc_adata.obs.columns.tolist())
         exit(1)
 
-    overlapped_path = os.path.join(args.data_dir, 'sc_data_overlapped.csv')
+    overlapped_path = os.path.join(args.data_dir, 'sc_data_overlapped.h5ad')
     labels_path = os.path.join(args.data_dir, 'sc_labels.csv')
 
     if not os.path.exists(overlapped_path) or not os.path.exists(labels_path):
@@ -87,7 +87,9 @@ def prepare_marker_genes():
             celltype_col=args.celltype_col,
             sample_col=args.sample_col
         )
-        sc_adata_overlapped.to_df().to_csv(overlapped_path)
+        print("💿 Saving data...")
+        # sc_adata_overlapped.to_df().to_csv(overlapped_path)
+        sc_adata_overlapped.write(overlapped_path)
         sc_labels.to_csv(labels_path)
 
     print("🔍 Selecting marker genes...")
