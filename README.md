@@ -83,14 +83,14 @@ Type `python declust.py --help` in the terminal to see a list of available comma
 1. Download DECLUST:
 
 ```bash
-   wget https://github.com/Qingyueee/DECLUST/archive/refs/tags/0.1.0.tar.gz
-   tar -xvf 0.1.0.tar.gz
+   wget https://github.com/Qingyueee/DECLUST/archive/refs/tags/0.1.1.tar.gz
+   tar -xvf 0.1.1.tar.gz
 ```
 
 2. Unpack data:
 
 ```bash
-   cd DECLUST-0.1.0
+   cd DECLUST-0.1.1
    unzip data.zip
 ```
 3. Marker gene selection:
@@ -161,9 +161,9 @@ Users can provide their own marker gene list in one of two formats:
 
 ```bash
 # 1. Download DECLUST
-   wget https://github.com/Qingyueee/DECLUST/archive/refs/tags/0.1.0.tar.gz
-   tar -xvf 0.1.0.tar.gz
-   cd DECLUST-0.1.0
+   wget https://github.com/Qingyueee/DECLUST/archive/refs/tags/0.1.1.tar.gz
+   tar -xvf 0.1.1.tar.gz
+   cd DECLUST-0.1.1
 
 # 2. Configuring environment and install dependencies
    conda create -n declust_env python=3.9
