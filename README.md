@@ -198,7 +198,7 @@ Users can provide their own marker gene list in one of two formats:
    project/
    │
    ├── data/
-   │   ├── sc_adata_overlapped.csv
+   │   ├── sc_adata_overlapped.h5ad
    │   ├── sc_labels.csv
    │   └── ...
    │

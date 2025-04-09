@@ -87,8 +87,6 @@ def prepare_marker_genes():
             celltype_col=args.celltype_col,
             sample_col=args.sample_col
         )
-        print("💿 Saving data...")
-        # sc_adata_overlapped.to_df().to_csv(overlapped_path)
         sc_adata_overlapped.write(overlapped_path)
         sc_labels.to_csv(labels_path)
 
