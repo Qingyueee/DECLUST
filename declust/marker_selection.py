@@ -18,13 +18,12 @@ def generate_marker_genes(sc_overlapped_path, sc_labels_path, output_path):
     with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
         r(f'''
         library(dplyr)
-        library(zellkonverter)
-        library(SingleCellExperiment)
+        library(anndata)
 
         source('{r_script_str}')
 
-        sc_overlapped_adata <- readH5AD('{sc_overlapped_path}')
-        sc_overlapped <- as.data.frame(t(as.matrix(assay(sc_overlapped_adata))))
+        sc_overlapped_adata <- read_h5ad('{sc_overlapped_path}')
+        sc_overlapped <- as.data.frame(sc_overlapped_adata$X)
 
         sc_anno <- read.csv('{sc_labels_path}', header = TRUE, sep = ',', row.names = 1, check.names = FALSE)
 
