@@ -4,12 +4,18 @@ import contextlib
 import pandas as pd
 import importlib.resources
 import rpy2.rinterface_lib.callbacks
+
 from rpy2.robjects import r, pandas2ri
 from rpy2.rinterface_lib.callbacks import logger as rpy2_logger
 
 pandas2ri.activate()
-rpy2.rinterface_lib.callbacks.logger.error = lambda *args, **kwargs: None
-rpy2_logger.setLevel(logging.ERROR)
+
+rpy2.rinterface_lib.callbacks.logger.setLevel(logging.ERROR)
+
+rpy2.rinterface_lib.callbacks.consolewrite_print = lambda x: None
+rpy2.rinterface_lib.callbacks.consolewrite_warnerror = lambda x: None
+
+rpy2.rinterface_lib.callbacks._processevents = lambda: None
 
 def generate_marker_genes(sc_overlapped_path, sc_labels_path, output_path):
     with importlib.resources.path("declust.scripts", "rtest1grp.R") as r_script_path:

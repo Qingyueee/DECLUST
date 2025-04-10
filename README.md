@@ -33,6 +33,11 @@ We recommend using a separate Conda environment. Information about Conda and how
    sh install_dependencies.sh
 ```
 
+The DECLUST package has been installed successfully on Operating systems:
+
+- macOS Sequoia 15.3.2
+- SUSE Linux Enterprise Server 15 SP5 (Dardel HPC system)
+
 ## 📊 Data Input
 
 DECLUST uses `.h5ad` files, which are [AnnData](https://anndata.readthedocs.io/en/latest/) objects commonly used for storing annotated data matrices in single-cell and spatial transcriptomics analysis.
@@ -175,7 +180,7 @@ Users can provide their own marker gene list in one of two formats:
    wget "https://drive.usercontent.google.com/download?id=1qU0RP6RTXsatiOcndlKzOuwOUttDHZb5&export=download&authuser=0&confirm=t&uuid=8c67cbf0-d0b4-4222-886f-26c23a5491bb&at=APcmpowVSo0cTH-v4qg25Igd78uI%3A1744177571233" -O simulation_data.zip
    unzip simulation_data.zip
 
-# 4. Run pipeline - it may take about 10 minutes to complete on a personal computer
+# 4. Run pipeline - it may take about 2 minutes to complete on a personal computer
    python declust.py --module deconv \
       --data_dir simulation_data \
       --results_dir simulation_results \
