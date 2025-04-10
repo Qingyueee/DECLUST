@@ -9,6 +9,9 @@ then
     exit 1
 fi
 
+conda config --add channels defaults
+conda config --add channels conda-forge
+
 # Step 1: Install R
 echo "Installing R 4.3 via conda-forge..."
 conda install -y -c conda-forge r-base=4.3
