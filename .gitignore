@@ -5,3 +5,5 @@ simulation_data/
 results/
 simulation_results/
 .DS_Store
+
+data_process.ipynb

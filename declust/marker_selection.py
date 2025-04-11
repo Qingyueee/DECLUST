@@ -30,6 +30,7 @@ def generate_marker_genes(sc_overlapped_path, sc_labels_path, output_path):
 
         sc_overlapped_adata <- read_h5ad('{sc_overlapped_path}')
         sc_overlapped <- as.data.frame(sc_overlapped_adata$X)
+        sc_overlapped_adata <- NULL
 
         sc_anno <- read.csv('{sc_labels_path}', header = TRUE, sep = ',', row.names = 1, check.names = FALSE)
 

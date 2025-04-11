@@ -58,7 +58,7 @@ Each `.h5ad` file includes:
 
 - Download the [Real Data Example](https://drive.google.com/uc?export=download&id=1LrSQYf1_IqQzxx7GeJrbBsEyuLLHHERC). 
    
-- Download the [Simulation Data Example](https://drive.google.com/uc?export=download&id=1qU0RP6RTXsatiOcndlKzOuwOUttDHZb5).
+- Download the [Simulation Data Example](https://drive.google.com/uc?export=download&id=1VY_vIuZalCBe2IhNCNBSQwo5m5Da8aFw).
 
 
 ## ⚙️ Usage
@@ -177,14 +177,14 @@ Users can provide their own marker gene list in one of two formats:
    sh install_dependencies.sh
 
 # 3. Download and unpack simulated data
-   wget "https://drive.usercontent.google.com/download?id=1qU0RP6RTXsatiOcndlKzOuwOUttDHZb5&export=download&authuser=0&confirm=t&uuid=8c67cbf0-d0b4-4222-886f-26c23a5491bb&at=APcmpowVSo0cTH-v4qg25Igd78uI%3A1744177571233" -O simulation_data.zip
+   wget "https://drive.usercontent.google.com/download?id=1VY_vIuZalCBe2IhNCNBSQwo5m5Da8aFw&export=download&authuser=0&confirm=t&uuid=93730baf-2a12-49d7-b475-ab715a3644c3&at=APcmpow759exSs6opQk4zSMVbjXf%3A1744370330609" -O simulation_data.zip
    unzip simulation_data.zip
 
 # 4. Run pipeline - it may take about 2 minutes to complete on a personal computer
    python declust.py --module deconv \
       --data_dir simulation_data \
       --results_dir simulation_results \
-      --sc_file sc_adata.h5ad \
+      --sc_file sc_adata_200_per_celltype.h5ad \
       --st_file st_simu_adata.h5ad \
       --celltype_col celltype_major \
       --sample_col Patient
@@ -193,7 +193,7 @@ Users can provide their own marker gene list in one of two formats:
    python declust.py --module visualize \
       --data_dir simulation_data \
       --results_dir simulation_results \
-      --sc_file sc_adata.h5ad \
+      --sc_file sc_adata_200_per_celltype.h5ad \
       --st_file st_simu_adata.h5ad
 ```
 
