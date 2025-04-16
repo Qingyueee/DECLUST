@@ -46,7 +46,7 @@ def nonnegative_constraint(beta_hat):
     beta_normalized = beta_hat / np.sum(beta_hat)
     return beta_normalized
 
-def ols(st_adata, sc_adata_marker_h5ad, label_df):
+def ols(st_adata, sc_adata_marker_h5ad, label_df, celltype_col='celltype_major'):
     """
     Perform deconvolution using ordinary least squares (OLS) regression to estimate 
     cell-type proportions in spatial transcriptomics data.
@@ -58,12 +58,15 @@ def ols(st_adata, sc_adata_marker_h5ad, label_df):
         
         sc_adata_marker_h5ad (anndata.AnnData):
             Single-cell RNA-seq data with marker information in an AnnData object. Its .obs 
-            attribute must include a 'celltype_major' column indicating the major cell type for 
-            each cell. The .var_names represent the gene names.
+            attribute must include a column indicating the major cell type for each cell.
         
         label_df (pandas.DataFrame):
             A DataFrame containing labels for the spatial spots. It should have a 'label' column 
             and its index corresponds to the spatial spots in st_adata.
+
+        celltype_col (str):
+            Column name in sc_adata_marker_h5ad.obs indicating the cell type of each cell.
+            Default is 'celltype_major'.
 
     Returns:
         pandas.DataFrame:
@@ -75,12 +78,12 @@ def ols(st_adata, sc_adata_marker_h5ad, label_df):
 
     pseudo_bulk_df = generate_pseudo_bulk(st_adata, label_df)
 
-    unique_cell_types = sc_adata_marker_h5ad.obs['celltype_major'].unique()
+    unique_cell_types = sc_adata_marker_h5ad.obs[celltype_col].unique()
     celltype_indexes = {cell_type: cell_type for cell_type in unique_cell_types}
     mean_cell_type_df = pd.DataFrame(index=celltype_indexes.keys(), columns=sc_adata_marker_h5ad.var_names)
 
     for celltype, label in celltype_indexes.items():
-        indexes = sc_adata_marker_h5ad.obs['celltype_major'][sc_adata_marker_h5ad.obs['celltype_major'] == label].index
+        indexes = sc_adata_marker_h5ad.obs[sc_adata_marker_h5ad.obs[celltype_col] == label].index
         selected_rows = sc_adata_marker_h5ad[indexes, :]
         mean_cell_type_df.loc[celltype] = np.mean(selected_rows.X.toarray(), axis=0)
 

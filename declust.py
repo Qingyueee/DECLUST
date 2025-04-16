@@ -157,7 +157,7 @@ def run_deconvolution():
     sc_adata_marker = sc_adata[:, sc_adata.var_names.isin(sc_marker_gene_df.index)].copy()
 
     print("🧩 Performing deconvolution with DECLUST...")
-    DECLUST_df = dc.deconvolution.ols(st_adata, sc_adata_marker, srg_df)
+    DECLUST_df = dc.deconvolution.ols(st_adata, sc_adata_marker, srg_df, celltype_col=args.celltype_col)
     DECLUST_df.to_csv(os.path.join(args.results_dir, 'DECLUST_result.csv'))
 
 
