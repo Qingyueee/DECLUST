@@ -25,6 +25,9 @@ parser.add_argument('--custom_marker_genes', type=str, default=None,
                     help='Optional: Provide a path to a CSV file or a comma-separated list of genes, e.g., "CD3D,MS4A1,LYZ"')
 parser.add_argument('--custom_marker_celltype', type=str, default=None,
                     help='Optional: Cell type annotation(s) corresponding to --custom_marker_genes')
+parser.add_argument('--dbscan_eps', type=float, default=4.0, help='Epsilon parameter for DBSCAN (default: 4.0)')
+parser.add_argument('--dbscan_min_samples', type=int, default=8, help='min_samples parameter for DBSCAN (default: 8)')
+
 args = parser.parse_args()
 
 # -----------------------------------------
@@ -113,12 +116,16 @@ def run_clustering():
         save_path=None if args.visualize_hierarchical else os.path.join(args.results_dir, 'hierarchical'),
         show_selection_plot=args.visualize_selection
     )
+    
     dbscan_df = dc.dbscan.clustering(
         hier_df,
         coords_df,
         visualize=args.visualize_dbscan,
-        plot_save_dir=None if args.visualize_dbscan else os.path.join(args.results_dir, 'dbscan')
+        plot_save_dir=None if args.visualize_dbscan else os.path.join(args.results_dir, 'dbscan'),
+        eps=args.dbscan_eps,
+        min_samples=args.dbscan_min_samples
     )
+
     srg_df = dc.srg.clustering(
         dbscan_df,
         coords_df,

@@ -71,8 +71,7 @@ def find_cluster_centers(cluster_arr, dbscan_labels, hierarchical_label, min_clu
     
     return results
 
-def clustering(hierarchical_results, coords, visualize=False, plot_save_dir=None):
-
+def clustering(hierarchical_results, coords, visualize=False, plot_save_dir=None, eps=4, min_samples=8):
     """
     Performs DBSCAN clustering on the results from hierarchical clustering and returns 
     the cluster centers mapped to the original coordinates indices.
@@ -86,10 +85,19 @@ def clustering(hierarchical_results, coords, visualize=False, plot_save_dir=None
         coords (pandas.DataFrame):
             DataFrame of the original coordinates. It should have 'x' and 'y' columns that 
             will be used to map the DBSCAN cluster centers back to the original indices.
-            
+
         visualize (bool, optional):
             Whether to visualize the DBSCAN clustering for each cluster using the 
             `plot_dbscan_clusters()` function. Defaults to False.
+
+        plot_save_dir (str, optional):
+            Directory to save plots if visualize is True. If None, plots are not saved.
+
+        eps (float, optional):
+            The maximum distance between two samples for them to be considered as in the same neighborhood. Default is 4.
+
+        min_samples (int, optional):
+            The number of samples in a neighborhood for a point to be considered as a core point. Default is 8.
 
     Returns:
         pandas.DataFrame:
@@ -99,8 +107,7 @@ def clustering(hierarchical_results, coords, visualize=False, plot_save_dir=None
     """
 
     print("Running DBSCAN clustering...")
-    eps = 4
-    min_samples = 8
+
     results = []
     unique_cluster_labels = hierarchical_results['label'].unique()
 
@@ -109,12 +116,6 @@ def clustering(hierarchical_results, coords, visualize=False, plot_save_dir=None
         cluster_arr = cluster_data[['x', 'y']].values
 
         dbscan_labels = DBSCAN(eps=eps, min_samples=min_samples).fit_predict(cluster_arr)
-
-        # if visualize:
-        #     plot_dbscan_clusters(cluster_arr, dbscan_labels, cluster_label)
-        
-        # centers = find_cluster_centers(cluster_arr, dbscan_labels, cluster_label)
-        # results.extend(centers)
 
         if visualize or plot_save_dir:
             save_path_fig = None
@@ -139,6 +140,3 @@ def clustering(hierarchical_results, coords, visualize=False, plot_save_dir=None
     dbscan_centers_df.index = matched_indexes
     
     return dbscan_centers_df
-
-
-
