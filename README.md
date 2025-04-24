@@ -194,7 +194,8 @@ Users can provide their own marker gene list in one of two formats:
       --data_dir simulation_data \
       --results_dir simulation_results \
       --sc_file sc_adata_200_per_celltype.h5ad \
-      --st_file st_simu_adata.h5ad
+      --st_file st_simu_adata.h5ad \
+      --celltype_col celltype_major 
 ```
 
 ## 📁 Output Structure
