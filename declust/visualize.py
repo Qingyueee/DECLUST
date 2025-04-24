@@ -2,28 +2,22 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-def declust_marker_boxplot(sc_adata, sc_marker_gene, gene_index):
-
+def declust_marker_boxplot(sc_adata, sc_marker_gene, gene_index, celltype_col='celltype_major'):
     """
     Create a boxplot showing the expression of a specific marker gene across different cell types.
 
-    This function extracts the expression values for a specified gene from single-cell data (sc_adata)
-    and plots a boxplot of its expression across the major cell types defined in the dataset. The gene
-    to plot can be specified by its index (integer) or its name (string).
-
     Parameters:
         sc_adata (anndata.AnnData):
-            Single-cell RNA-seq data in an AnnData object. The object should have:
-                - `obs['celltype_major']`: A column indicating the major cell type for each cell.
-                - Gene expression data accessible via `sc_adata.to_df()`, where columns are gene names.
-                
+            Single-cell RNA-seq data in an AnnData object. Must contain a column in `obs` specified by `celltype_col`.
+
         sc_marker_gene (pandas.DataFrame):
             A DataFrame of marker genes, where the index contains gene names.
             
         gene_index (int or str):
-            The identifier for the gene to plot. If an integer, it is used as the index position
-            in sc_marker_gene's index. If a string, it is interpreted as the gene name. If the string
-            is not found in the DataFrame index, the function will attempt to locate it in the DataFrame values.
+            Gene identifier to plot; either an index or a name.
+
+        celltype_col (str):
+            The column in `sc_adata.obs` that indicates the cell type.
     """
 
     box_color = '#92B5CA'
@@ -41,7 +35,7 @@ def declust_marker_boxplot(sc_adata, sc_marker_gene, gene_index):
         raise TypeError("gene_index must be either an integer or a string.")
 
     sc_marker_df = pd.DataFrame({
-        'CellType': sc_adata.obs['celltype_major'],
+        'CellType': sc_adata.obs[celltype_col],
         'gene_Expression': sc_adata.to_df()[gene_name]
     })
 
@@ -64,6 +58,7 @@ def declust_marker_boxplot(sc_adata, sc_marker_gene, gene_index):
 
     plt.tight_layout()
     plt.show()
+
 
 
 

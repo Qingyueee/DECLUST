@@ -201,7 +201,8 @@ def visualize():
             gene_name = input("Enter gene name for boxplot: ").strip()
             if gene_name in sc_adata.var_names:
                 break
-        dc.visualize.declust_marker_boxplot(sc_adata, sc_marker_gene_df, gene_name)
+        # dc.visualize.declust_marker_boxplot(sc_adata, sc_marker_gene_df, gene_name)
+        dc.visualize.declust_marker_boxplot(sc_adata, sc_marker_gene_df, gene_name, celltype_col=args.celltype_col)
 
     elif choice == '2':
         print("\n🔎 Available cell types:", DECLUST_df.columns.tolist())
