@@ -36,6 +36,7 @@ We recommend using a separate Conda environment. Information about Conda and how
 The DECLUST package has been installed successfully on Operating systems:
 
 - macOS Sequoia 15.3.2
+- Ubuntu 22.04
 - SUSE Linux Enterprise Server 15 SP5 (Dardel HPC system)
 
 ## 📊 Data Input
