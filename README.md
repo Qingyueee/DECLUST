@@ -178,7 +178,7 @@ Users can provide their own marker gene list in one of two formats:
    sh install_dependencies.sh
 
 # 3. Download and unpack simulated data
-   wget "https://drive.usercontent.google.com/download?id=1VY_vIuZalCBe2IhNCNBSQwo5m5Da8aFw&export=download&authuser=0&confirm=t&uuid=93730baf-2a12-49d7-b475-ab715a3644c3&at=APcmpow759exSs6opQk4zSMVbjXf%3A1744370330609" -O simulation_data.zip
+   wget "https://drive.usercontent.google.com/download?id=1xDx_Wny4NQxWiv0JmPheQIL9oD9XDI6A&export=download&authuser=0&confirm=t&uuid=532376ff-6e95-41f1-8357-31b333fa093f&at=APcmpowvVMOvWT63KvGDXfYSA9ZJ:1746541698306" -O simulation_data.zip
    unzip simulation_data.zip
 
 # 4. Run pipeline - it may take about 2 minutes to complete on a personal computer
