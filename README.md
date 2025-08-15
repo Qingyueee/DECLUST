@@ -1,6 +1,6 @@
 #  <img src="./logo.png" align="left" height="150" /></a>
 
-<strong>DECLUST</strong> is a Python package developed to identify spatially coherent clusters of spots by integrating gene expression profiles with spatial coordinates in spatial transcriptomics data. It also enables accurate estimation of cell-type compositions within each cluster.
+<strong>DECLUST</strong> [1] is a Python package developed to identify spatially coherent clusters of spots by integrating gene expression profiles with spatial coordinates in spatial transcriptomics data. It also enables accurate estimation of cell-type compositions within each cluster.
 
 
 <br> 
@@ -220,3 +220,6 @@ Users can provide their own marker gene list in one of two formats:
 ## License  
 
 GNU General Public License v3.0
+
+## References
+1. Wang Q,  Khatri P,  Dinh HQ,  Huang J,  Pawitan Y,  Vu TN. A cluster-based cell-type deconvolution of spatial transcriptomic data. Nucleic acids research 2025 53;14 (https://academic.oup.com/nar/article/53/14/gkaf714/8211932)
