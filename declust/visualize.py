@@ -151,13 +151,13 @@ def declust_results_visualize(st_adata, sc_marker_gene, DECLUST_df, coords,
 
     fig, axs = plt.subplots(1, 2, figsize=(12, 5))
 
-    scatter1 = axs[0].scatter(coords['x'], coords['y'], c=gene_expr, cmap='viridis', s=10,
+    scatter1 = axs[0].scatter(coords['y'], -coords['x'], c=gene_expr, cmap='viridis', s=10,
                               vmin=gene_expr.min(), vmax=gene_expr.max())
     fig.colorbar(scatter1, ax=axs[0])
     axs[0].set_title(title_expr)
 
     cell_prop = DECLUST_df[cell_type]
-    scatter2 = axs[1].scatter(coords['x'], coords['y'], c=cell_prop, cmap='viridis', s=10,
+    scatter2 = axs[1].scatter(coords['y'], -coords['x'], c=cell_prop, cmap='viridis', s=10,
                               vmin=cell_prop.min(), vmax=cell_prop.max() * 1.1)
     fig.colorbar(scatter2, ax=axs[1])
     axs[1].set_title(f'{cell_type} proportion')

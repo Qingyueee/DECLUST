@@ -172,7 +172,8 @@ def visualize_results(label_df, sorted_labels, show_plot=False, save_path=None):
     for i, label in enumerate(sorted_labels):
         label_data = label_df[label_df['label'] == label]
         color = cmap(i)
-        ax.scatter(label_data['x'], label_data['y'], color=color, s=8, label=f'Segment {label}')
+        # ax.scatter(label_data['x'], label_data['y'], color=color, s=8, label=f'Segment {label}')
+        ax.scatter(label_data['y'], -label_data['x'], color=color, s=8, label=f'Segment {label}')
     
     ax.set_title('SRG results')
     ax.set_xticks([])
