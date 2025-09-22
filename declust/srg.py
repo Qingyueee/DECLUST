@@ -165,7 +165,7 @@ def update_label_dict(SSL, label_dict):
 #     plt.show()
 
 def visualize_results(label_df, sorted_labels, show_plot=False, save_path=None):
-    fig, ax = plt.subplots(figsize=(8, 6))
+    fig, ax = plt.subplots(figsize=(7, 6))
 
     cmap = cm.get_cmap('tab20', len(sorted_labels))
 

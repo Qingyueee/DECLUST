@@ -149,7 +149,7 @@ def declust_results_visualize(st_adata, sc_marker_gene, DECLUST_df, coords,
         gene_expr = st_adata.to_df()[gene_name]
         title_expr = gene_name
 
-    fig, axs = plt.subplots(1, 2, figsize=(12, 5))
+    fig, axs = plt.subplots(1, 2, figsize=(11, 5))
 
     scatter1 = axs[0].scatter(coords['y'], -coords['x'], c=gene_expr, cmap='viridis', s=10,
                               vmin=gene_expr.min(), vmax=gene_expr.max())
