@@ -64,7 +64,10 @@ def declust_marker_boxplot(sc_adata, sc_marker_gene, gene_index, celltype_col='c
 
 def declust_results_visualize(st_adata, sc_marker_gene, DECLUST_df, coords,
                               idx=None, gene_name=None, cell_type=None,
-                              agg_method='sum', save=False, save_path=None):
+                              agg_method='sum',
+                              gene_vmin=None, gene_vmax=None,
+                              cell_vmin=None, cell_vmax=None,
+                              save=False, save_path=None):
     
     """
     Visualize deconvolution results by plotting marker gene expression and estimated cell type proportion 
@@ -151,14 +154,21 @@ def declust_results_visualize(st_adata, sc_marker_gene, DECLUST_df, coords,
 
     fig, axs = plt.subplots(1, 2, figsize=(11, 5))
 
-    scatter1 = axs[0].scatter(coords['y'], -coords['x'], c=gene_expr, cmap='viridis', s=10,
-                              vmin=gene_expr.min(), vmax=gene_expr.max())
+    # scatter1 = axs[0].scatter(coords['y'], -coords['x'], c=gene_expr, cmap='viridis', s=10,
+                            #   vmin=gene_expr.min(), vmax=gene_expr.max())
+
+    scatter1 = axs[0].scatter(
+        coords['y'], -coords['x'], c=gene_expr, cmap='viridis', s=10,
+        vmin=gene_vmin if gene_vmin is not None else gene_expr.min(),
+        vmax=gene_vmax if gene_vmax is not None else gene_expr.max()
+    )
     fig.colorbar(scatter1, ax=axs[0])
     axs[0].set_title(title_expr)
 
     cell_prop = DECLUST_df[cell_type]
     scatter2 = axs[1].scatter(coords['y'], -coords['x'], c=cell_prop, cmap='viridis', s=10,
-                              vmin=cell_prop.min(), vmax=cell_prop.max() * 1.1)
+                              vmin=cell_vmin if cell_vmin is not None else cell_prop.min(),
+                              vmax=cell_vmax if cell_vmax is not None else cell_prop.max())
     fig.colorbar(scatter2, ax=axs[1])
     axs[1].set_title(f'{cell_type} proportion')
 
