@@ -33,9 +33,13 @@ def plot_dbscan_clusters(cluster_arr, dbscan_labels, hierarchical_label, save_pa
     else:
         plt.show()
 
-def find_cluster_centers(cluster_arr, dbscan_labels, hierarchical_label, min_cluster_size_ratio=0.05, sample_ratio=0.5):
+def find_cluster_centers(cluster_arr, dbscan_labels, hierarchical_label,
+                         min_cluster_size_ratio=0.05, sample_ratio=0.5,
+                         random_state=42):
     results = []
     unique_dbscan_labels = np.unique(dbscan_labels)
+
+    rng = np.random.default_rng(random_state)
     
     for dbscan_label in unique_dbscan_labels:
         if dbscan_label != -1:
@@ -53,7 +57,7 @@ def find_cluster_centers(cluster_arr, dbscan_labels, hierarchical_label, min_clu
             points_to_add = [{'center_x': nearest_point[0], 'center_y': nearest_point[1]}]
 
             sample_size = max(1, int(cluster_size * sample_ratio))
-            sample_indices = np.random.choice(cluster_indices, size=sample_size, replace=False)
+            sample_indices = rng.choice(cluster_indices, size=sample_size, replace=False)
             sampled_points = cluster_arr[sample_indices]
             
             for point in sampled_points:
@@ -70,6 +74,7 @@ def find_cluster_centers(cluster_arr, dbscan_labels, hierarchical_label, min_clu
                 })
     
     return results
+
 
 def clustering(hierarchical_results, coords, visualize=False, plot_save_dir=None, eps=4, min_samples=8):
     """
